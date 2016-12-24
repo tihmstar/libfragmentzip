@@ -212,6 +212,7 @@ fragmentzip_cd *getCDForPath(fragmentzip_t *info, const char *path){
 int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const char *savepath, fragmentzip_process_callback_t callback){
     int err = 0;
     t_downloadBuffer *compressed = NULL;
+    fragentzip_local_file *lfile = NULL;
     char *uncompressed = NULL;
     FILE *f = NULL;
     
@@ -224,7 +225,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     compressed->callback = callback;
     
-    assure(compressed->buf = (char*)malloc(compressed->size_buf = rfile->size_compressed+sizeof(fragentzip_local_file)+1+rfile->len_filename+rfile->len_extra_field));
+    assure(compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)-1));
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%u-%u",rfile->local_header_offset,(unsigned)(rfile->local_header_offset + compressed->size_buf-1));
@@ -235,11 +236,22 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     assure(curl_easy_perform(info->mcurl) == CURLE_OK);
     assure(strncmp(compressed->buf, "\x50\x4b\x03\x04", 4) == 0);
     
-    fragentzip_local_file *lfile = (fragentzip_local_file*)compressed->buf;
+    lfile = (fragentzip_local_file*)compressed->buf;
     fixEndian_local_file(lfile);
+    
+    compressed->size_downloaded = 0;
+    assure(compressed->buf = malloc(compressed->size_buf = rfile->size_compressed));
+    
+    bzero(downloadRange,sizeof(downloadRange));
+    
+    uint start = (uint)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
+    snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(uint)(start+compressed->size_buf-1));
+    curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
+    
+    assure(curl_easy_perform(info->mcurl) == CURLE_OK);
+    
+    
     assure(uncompressed = malloc(rfile->size_uncompressed));
-    
-    
     //file downloaded, now unpack it
     switch (lfile->compression) {
         case 8: //defalted
@@ -248,7 +260,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             inflateInit2(&strm, -MAX_WBITS);
             
             strm.avail_in = rfile->size_compressed;
-            strm.next_in = (z_const Bytef *)lfile->filename+lfile->len_filename+lfile->len_extra_field;
+            strm.next_in = (z_const Bytef *)compressed->buf;
             strm.avail_out = rfile->size_uncompressed;
             strm.next_out = (Bytef *)uncompressed;
             
@@ -278,6 +290,7 @@ error:
         safeFree(compressed);
     }
     safeFree(uncompressed);
+    safeFree(lfile);
     if (f) fclose(f);
     
     return err;
