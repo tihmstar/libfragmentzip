@@ -12,8 +12,6 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 
-void test();
-
 #ifdef _WIN32
 #define STATIC_INLINE static __inline
 #define ATTRIBUTE_PACKED
