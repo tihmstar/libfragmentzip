@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE(libfragmentzip, 1.0)
 AC_PROG_CC
 AC_LANG_C
 
+AC_CONFIG_MACRO_DIRS([m4])
 
 # Checks for libraries.
 PKG_CHECK_MODULES(curl, libcurl >= 1.0)
