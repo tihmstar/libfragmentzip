@@ -21,8 +21,6 @@ typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 #define assure(a) do{ if ((a) == 0){err=1; goto error;} }while(0)
 #define safeFree(a) do{ if (a){free(a); a=NULL;} }while(0)
 
-#define nextCD(cd) ((fragmentzip_cd *)(cd->filename+cd->len_filename+cd->len_extra_field+cd->len_file_comment))
-
 typedef struct{
     char *buf;
     size_t size_buf;
@@ -107,7 +105,7 @@ STATIC_INLINE void fixEndian_cd(fragmentzip_cd *cd, uint entries){
             makeLE32(cd->external_attribute);
             makeLE32(cd->local_header_offset);
             
-            cd = nextCD(cd);
+            cd = fragmentzip_nextCD(cd);
         }
     }
 }
@@ -203,7 +201,7 @@ fragmentzip_cd *getCDForPath(fragmentzip_t *info, const char *path){
         
         if (strncmp(curr->filename, path, strlen(path)) == 0) return curr;
         
-        curr = nextCD(curr);
+        curr = fragmentzip_nextCD(curr);
     }
 
     return NULL;

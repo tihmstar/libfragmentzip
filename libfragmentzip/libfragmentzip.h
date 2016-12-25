@@ -27,6 +27,8 @@
 #define makeBE16(a) makeEndian((char *)(&(a)), 2, 1)
 #define makeLE16(a) makeEndian((char *)(&(a)), 2, 0)
 
+#define fragmentzip_nextCD(cd) ((fragmentzip_cd *)(cd->filename+cd->len_filename+cd->len_extra_field+cd->len_file_comment))
+
 #ifndef __cplusplus
 typedef enum{
     false = 0,
