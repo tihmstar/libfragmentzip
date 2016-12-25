@@ -27,10 +27,12 @@
 #define makeBE16(a) makeEndian((char *)(&(a)), 2, 1)
 #define makeLE16(a) makeEndian((char *)(&(a)), 2, 0)
 
+#ifndef __cplusplus
 typedef enum{
     false = 0,
     true = 1
 }bool;
+#endif
 
 typedef struct{
     uint32_t signature;
