@@ -29,7 +29,10 @@
 
 #define fragmentzip_nextCD(cd) ((fragmentzip_cd *)(cd->filename+cd->len_filename+cd->len_extra_field+cd->len_file_comment))
 
-#ifndef __cplusplus
+#ifdef __cplusplus
+extern "C"
+{
+#else
 typedef enum{
     false = 0,
     true = 1
@@ -145,6 +148,8 @@ fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path);
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* libfragmentzip_h */

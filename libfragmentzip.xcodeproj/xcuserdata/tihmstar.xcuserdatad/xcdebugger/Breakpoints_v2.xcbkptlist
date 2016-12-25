@@ -334,9 +334,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "296"
-            endingLineNumber = "296"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
+            endingLineNumber = "296">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
