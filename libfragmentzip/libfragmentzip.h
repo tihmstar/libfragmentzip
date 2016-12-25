@@ -141,6 +141,8 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl); //pass c
 int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const char *savepath, fragmentzip_process_callback_t callback);
 void fragmentzip_close(fragmentzip_t *info);
 
+fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path);
+
 
 
 

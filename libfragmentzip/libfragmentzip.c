@@ -195,7 +195,7 @@ fragmentzip_t *fragmentzip_open(const char *url){
     return fragmentzip_open_extended(url, curl_easy_init());
 }
 
-fragmentzip_cd *getCDForPath(fragmentzip_t *info, const char *path){
+fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
     fragmentzip_cd *curr = info->cd;
     for (int i=0; i<info->cd_end->cd_entries; i++) {
         
@@ -216,7 +216,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     
     fragmentzip_cd *rfile = NULL;
-    assure(rfile = getCDForPath(info, remotepath));
+    assure(rfile = fragmentzip_getCDForPath(info, remotepath));
     
     assure(compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
     bzero(compressed, sizeof(t_downloadBuffer));
