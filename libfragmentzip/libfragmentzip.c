@@ -11,6 +11,7 @@
 #include <string.h>
 #include <zlib.h>
 #include <assert.h>
+#include <zconf.h>
 
 #define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
 
