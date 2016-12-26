@@ -11,7 +11,6 @@
 #include <string.h>
 #include <zlib.h>
 #include <assert.h>
-#include <zconf.h>
 
 #define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
 
@@ -259,7 +258,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             inflateInit2(&strm, -MAX_WBITS);
             
             strm.avail_in = rfile->size_compressed;
-            strm.next_in = (z_const Bytef *)compressed->buf;
+            strm.next_in = (Bytef *)compressed->buf;
             strm.avail_out = rfile->size_uncompressed;
             strm.next_out = (Bytef *)uncompressed;
             
