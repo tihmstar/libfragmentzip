@@ -84,7 +84,7 @@ STATIC_INLINE void fixEndian_end_of_cd(fragmentzip_end_of_cd *cde){
     }
 }
 
-STATIC_INLINE void fixEndian_cd(fragmentzip_cd *cd, uint entries){
+STATIC_INLINE void fixEndian_cd(fragmentzip_cd *cd, unsigned int entries){
     if (isBigEndian()) {
         for (int i=0; i<entries; i++) {
             makeLE32(cd->signature);
@@ -242,7 +242,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     bzero(downloadRange,sizeof(downloadRange));
     
-    uint start = (uint)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
+    unsigned int start = (uint)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
     snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(uint)(start+compressed->size_buf-1));
     curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
     

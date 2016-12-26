@@ -112,7 +112,7 @@ STATIC_INLINE bool isBigEndian(){
     return (bool)__builtin_expect(((char*)&tst)[0] == 0x41,0);
 }
 
-STATIC_INLINE void makeEndian(char * buf, uint size, bool big){
+STATIC_INLINE void makeEndian(char * buf, unsigned int size, bool big){
     if (isBigEndian() != big){
         switch (size) {
             case 2:
@@ -138,7 +138,7 @@ STATIC_INLINE void makeEndian(char * buf, uint size, bool big){
     }
 }
 
-typedef void (*fragmentzip_process_callback_t)(uint progress);
+typedef void (*fragmentzip_process_callback_t)(unsigned int progress);
 
 fragmentzip_t *fragmentzip_open(const char *url);
 fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl); //pass custom CURL with web auth by basic/digest or cookies
