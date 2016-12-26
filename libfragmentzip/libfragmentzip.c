@@ -41,7 +41,7 @@ static size_t downloadFunction(void* data, size_t size, size_t nmemb, t_download
     dbuf->size_downloaded += vsize;
     
     if (dbuf->callback){
-        dbuf->callback((uint)(((double)dbuf->size_downloaded/dbuf->size_buf)*100));
+        dbuf->callback((unsigned int)(((double)dbuf->size_downloaded/dbuf->size_buf)*100));
     }
     
     return vsize;
@@ -242,8 +242,8 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     bzero(downloadRange,sizeof(downloadRange));
     
-    unsigned int start = (uint)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
-    snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(uint)(start+compressed->size_buf-1));
+    unsigned int start = (unsigned int)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
+    snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(unsigned int)(start+compressed->size_buf-1));
     curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
     
     assure(curl_easy_perform(info->mcurl) == CURLE_OK);
