@@ -29,7 +29,7 @@
 		87B8C3401E0E9C37002F817D /* libfragmentzip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = libfragmentzip; sourceTree = BUILT_PRODUCTS_DIR; };
 		87B8C3431E0E9C37002F817D /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		87B8C34A1E0E9C4B002F817D /* libfragmentzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libfragmentzip.c; sourceTree = "<group>"; };
-		87B8C34B1E0E9C4B002F817D /* libfragmentzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libfragmentzip.h; sourceTree = "<group>"; };
+		87B8C34B1E0E9C4B002F817D /* libfragmentzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libfragmentzip.h; path = ../include/libfragmentzip/libfragmentzip.h; sourceTree = "<group>"; };
 		87B8C34E1E0E9C63002F817D /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
 		87CD9A391E0F108E00E566B7 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -238,6 +238,8 @@
 		87B8C3481E0E9C37002F817D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				HEADER_SEARCH_PATHS = ./include/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -245,6 +247,8 @@
 		87B8C3491E0E9C37002F817D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				HEADER_SEARCH_PATHS = ./include/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

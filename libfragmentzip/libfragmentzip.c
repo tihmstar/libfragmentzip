@@ -6,7 +6,7 @@
 //  Copyright © 2016 tihmstar. All rights reserved.
 //
 
-#include "libfragmentzip.h"
+#include <libfragmentzip/libfragmentzip.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
