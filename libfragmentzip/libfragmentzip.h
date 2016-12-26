@@ -12,6 +12,7 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #ifdef _WIN32
 #define STATIC_INLINE static __inline
