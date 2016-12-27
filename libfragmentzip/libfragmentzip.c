@@ -9,6 +9,7 @@
 #include <libfragmentzip/libfragmentzip.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <zlib.h>
 #include <assert.h>
 
