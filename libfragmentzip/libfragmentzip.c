@@ -136,7 +136,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     curl_easy_setopt(info->mcurl, CURLOPT_URL, info->url);
     curl_easy_setopt(info->mcurl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(info->mcurl, CURLOPT_NOBODY, 1);
-    
+    curl_easy_setopt(info->mcurl, CURLOPT_FOLLOWLOCATION, 1L);
     
     assure(curl_easy_perform(info->mcurl) == CURLE_OK);
     
