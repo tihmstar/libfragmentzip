@@ -19,6 +19,7 @@
 typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 
 #define assure(a) do{ if ((a) == 0){err=1; goto error;} }while(0)
+#define retassure(retcode, a) do{ if ((a) == 0){err=retcode; goto error;} }while(0)
 #define safeFree(a) do{ if (a){free(a); a=NULL;} }while(0)
 
 #define bzero(buf, sz) memset((buf), 0, (sz))
@@ -218,14 +219,14 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     
     fragmentzip_cd *rfile = NULL;
-    assure(rfile = fragmentzip_getCDForPath(info, remotepath));
+    retassure(-1,rfile = fragmentzip_getCDForPath(info, remotepath));
     
-    assure(compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
+    retassure(-2,compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
     bzero(compressed, sizeof(t_downloadBuffer));
     
     compressed->callback = callback;
     
-    assure(compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)-1));
+    retassure(-3,compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)-1));
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%u-%u",rfile->local_header_offset,(unsigned)(rfile->local_header_offset + compressed->size_buf-1));
@@ -233,14 +234,14 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
     curl_easy_setopt(info->mcurl, CURLOPT_WRITEDATA, compressed);
     
-    assure(curl_easy_perform(info->mcurl) == CURLE_OK);
-    assure(strncmp(compressed->buf, "\x50\x4b\x03\x04", 4) == 0);
+    retassure(-4,curl_easy_perform(info->mcurl) == CURLE_OK);
+    retassure(-5,strncmp(compressed->buf, "\x50\x4b\x03\x04", 4) == 0);
     
     lfile = (fragentzip_local_file*)compressed->buf;
     fixEndian_local_file(lfile);
     
     compressed->size_downloaded = 0;
-    assure(compressed->buf = malloc(compressed->size_buf = rfile->size_compressed));
+    retassure(-6,compressed->buf = malloc(compressed->size_buf = rfile->size_compressed));
     
     bzero(downloadRange,sizeof(downloadRange));
     
@@ -248,10 +249,10 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(unsigned int)(start+compressed->size_buf-1));
     curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
     
-    assure(curl_easy_perform(info->mcurl) == CURLE_OK);
+    retassure(-7,curl_easy_perform(info->mcurl) == CURLE_OK);
     
     
-    assure(uncompressed = malloc(rfile->size_uncompressed));
+    retassure(-8,uncompressed = malloc(rfile->size_uncompressed));
     //file downloaded, now unpack it
     switch (lfile->compression) {
         case 8: //defalted
@@ -265,7 +266,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             strm.next_out = (Bytef *)uncompressed;
             
             inflate(&strm, Z_FINISH);
-            assure(strm.msg == NULL);
+            retassure(-9,strm.msg == NULL);
             inflateEnd(&strm);
         }
             break;
@@ -276,11 +277,11 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             break;
     }
     
-    assure(crc32(0, (unsigned char *)uncompressed, rfile->size_uncompressed) == rfile->crc32);
+    retassure(-10,crc32(0, (unsigned char *)uncompressed, rfile->size_uncompressed) == rfile->crc32);
     
     //file unpacked, now save it
-    assure(f = fopen(savepath, "w"));
-    assure(fwrite(uncompressed, 1, rfile->size_uncompressed, f) == rfile->size_uncompressed);
+    retassure(-11,f = fopen(savepath, "w"));
+    retassure(-12,fwrite(uncompressed, 1, rfile->size_uncompressed, f) == rfile->size_uncompressed);
     
     
     
