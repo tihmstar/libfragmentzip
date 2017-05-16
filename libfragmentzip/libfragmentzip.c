@@ -258,14 +258,14 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
         case 8: //defalted
         {
             z_stream strm = {};
-            inflateInit2(&strm, -MAX_WBITS);
+            retassure(-13, inflateInit2(&strm, -MAX_WBITS) > 0);
             
             strm.avail_in = rfile->size_compressed;
             strm.next_in = (Bytef *)compressed->buf;
             strm.avail_out = rfile->size_uncompressed;
             strm.next_out = (Bytef *)uncompressed;
             
-            inflate(&strm, Z_FINISH);
+            retassure(-14, inflate(&strm, Z_FINISH) > 0);
             retassure(-9,strm.msg == NULL);
             inflateEnd(&strm);
         }
