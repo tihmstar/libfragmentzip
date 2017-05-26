@@ -257,8 +257,8 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     switch (lfile->compression) {
         case 8: //defalted
         {
-            z_stream strm = {};
-            retassure(-13, inflateInit2(&strm, -MAX_WBITS) > 0);
+            z_stream strm = {0};
+            retassure(-13, inflateInit2(&strm, -MAX_WBITS) >= 0);
             
             strm.avail_in = rfile->size_compressed;
             strm.next_in = (Bytef *)compressed->buf;
