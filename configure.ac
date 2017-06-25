@@ -15,7 +15,7 @@ AC_CONFIG_MACRO_DIRS([m4])
 
 # Checks for libraries.
 PKG_CHECK_MODULES(curl, libcurl >= 1.0)
-PKG_CHECK_MODULES(zlib, zlib >= 1.0)
+PKG_CHECK_MODULES(libzip, libzip >= 1.0)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
