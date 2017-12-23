@@ -36,3 +36,5 @@ AC_CONFIG_FILES([Makefile
                  libfragmentzip/Makefile
 		 libfragmentzip.pc])
 AC_OUTPUT
+
+AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
