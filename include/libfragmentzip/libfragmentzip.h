@@ -106,6 +106,9 @@ typedef struct fragmentzip_info{
     fragmentzip_end_of_cd *cd_end;
 } fragmentzip_t;
 
+#ifdef _WIN32
+#pragma pack()
+#endif
 
 STATIC_INLINE bool isBigEndian(){
     static const uint32_t tst = 0x41424344;
