@@ -14,6 +14,12 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#ifdef _WIN32
+#define FOPEN_WB "wb"
+#else
+#define FOPEN_WB "w"
+#endif
+
 #ifdef _MSC_VER
 #define STATIC_INLINE static __inline
 #define ATTRIBUTE_PACKED
