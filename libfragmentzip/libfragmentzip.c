@@ -153,7 +153,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd), info->length-1);
-    
+
     curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
     curl_easy_setopt(info->mcurl, CURLOPT_HTTPGET, 1);
 
@@ -220,7 +220,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     
     fragmentzip_cd *rfile = NULL;
     retassure(-1,rfile = fragmentzip_getCDForPath(info, remotepath));
-    
+
     retassure(-2,compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
     bzero(compressed, sizeof(t_downloadBuffer));
     
@@ -280,11 +280,11 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     retassure(-10,crc32(0, (unsigned char *)uncompressed, rfile->size_uncompressed) == rfile->crc32);
     
     //file unpacked, now save it
-    retassure(-11,f = fopen(savepath, "w"));
+    retassure(-11,f = fopen(savepath, FOPEN_WB));
     retassure(-12,fwrite(uncompressed, 1, rfile->size_uncompressed, f) == rfile->size_uncompressed);
-    
-    
-    
+
+
+
 error:
     if (compressed){
         safeFree(compressed->buf);

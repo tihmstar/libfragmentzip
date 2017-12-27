@@ -15,10 +15,15 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
+#define FOPEN_WB "wb"
+#else
+#define FOPEN_WB "w"
+#endif
+
+#ifdef _MSC_VER
 #define STATIC_INLINE static __inline
 #define ATTRIBUTE_PACKED
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 #else
 #define STATIC_INLINE static inline
 #define ATTRIBUTE_PACKED __attribute__ ((packed))
@@ -97,6 +102,9 @@ typedef struct{
 //    char file_comment[]; //variable length
 } ATTRIBUTE_PACKED fragmentzip_cd;
 
+#ifdef _MSC_VER
+#pragma pack()
+#endif
 
 typedef struct fragmentzip_info{
     char *url;
@@ -105,7 +113,6 @@ typedef struct fragmentzip_info{
     fragmentzip_cd *cd;
     fragmentzip_end_of_cd *cd_end;
 } fragmentzip_t;
-
 
 STATIC_INLINE bool isBigEndian(){
     static const uint32_t tst = 0x41424344;
