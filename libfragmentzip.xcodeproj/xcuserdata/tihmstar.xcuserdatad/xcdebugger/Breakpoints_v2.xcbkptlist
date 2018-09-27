@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "263"
-            endingLineNumber = "263"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "294"
+            endingLineNumber = "294"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "504612397.780318"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "254"
-            endingLineNumber = "254"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "285"
+            endingLineNumber = "285"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -47,7 +47,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "60"
             endingLineNumber = "60"
-            landmarkName = "fixEndian_local_file()"
+            landmarkName = "fixEndian_local_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -58,12 +58,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "275"
-            endingLineNumber = "275"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "306"
+            endingLineNumber = "306"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -74,12 +74,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "303"
-            endingLineNumber = "303"
-            landmarkName = "fragmentzip_close()"
+            startingLineNumber = "333"
+            endingLineNumber = "333"
+            landmarkName = "fragmentzip_close"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -90,12 +90,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "288"
-            endingLineNumber = "288"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "318"
+            endingLineNumber = "318"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -106,12 +106,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "289"
-            endingLineNumber = "289"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "319"
+            endingLineNumber = "319"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -122,12 +122,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "282"
-            endingLineNumber = "282"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "313"
+            endingLineNumber = "313"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -138,13 +138,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "504612397.780318"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
+            startingLineNumber = "235"
+            endingLineNumber = "235"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -154,12 +154,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "259"
-            endingLineNumber = "259"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "290"
+            endingLineNumber = "290"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -191,7 +191,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "123"
             endingLineNumber = "123"
-            landmarkName = "fragmentzip_open_extended()"
+            landmarkName = "fragmentzip_open_extended"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -202,12 +202,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "293"
-            endingLineNumber = "293"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "323"
+            endingLineNumber = "323"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -218,12 +218,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "504612397.780318"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "251"
+            endingLineNumber = "251"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -234,12 +234,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "308"
+            endingLineNumber = "308"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -250,12 +250,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "267"
-            endingLineNumber = "267"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "298"
+            endingLineNumber = "298"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -266,76 +266,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "266"
-            endingLineNumber = "266"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "269"
-            endingLineNumber = "269"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "504612397.780318"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "252"
-            endingLineNumber = "252"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "504612397.780318"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "244"
-            endingLineNumber = "244"
-            landmarkName = "fragmentzip_download_file()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "297"
             endingLineNumber = "297"
-            landmarkName = "fragmentzip_download_file()"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -346,12 +282,60 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "libfragmentzip/libfragmentzip.c"
-            timestampString = "517488740.494883"
+            timestampString = "518597319.966783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
-            landmarkName = "fragmentzip_download_file()"
+            startingLineNumber = "300"
+            endingLineNumber = "300"
+            landmarkName = "fragmentzip_download_file"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "libfragmentzip/libfragmentzip.c"
+            timestampString = "518597319.966783"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "270"
+            endingLineNumber = "270"
+            landmarkName = "fragmentzip_download_file"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "libfragmentzip/libfragmentzip.c"
+            timestampString = "518597319.966783"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
+            landmarkName = "fragmentzip_download_file"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "libfragmentzip/libfragmentzip.c"
+            timestampString = "518597319.966783"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "293"
+            endingLineNumber = "293"
+            landmarkName = "fragmentzip_download_file"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

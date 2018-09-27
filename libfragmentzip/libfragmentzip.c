@@ -288,6 +288,11 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     retassure(-8,uncompressed = malloc(rfile->size_uncompressed));
     //file downloaded, now unpack it
     switch (lfile->compression) {
+        case 0: //store
+        {
+            memcpy(uncompressed, compressed->buf, rfile->size_uncompressed);
+            break;
+        }
         case 8: //defalted
         {
             z_stream strm = {0};
