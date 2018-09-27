@@ -231,8 +231,10 @@ fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
 
     fragmentzip_cd *curr = info->cd;
     for (int i=0; i<info->cd_end->cd_entries; i++) {
-        assure((char*)curr-(char*)info->cd <= info->length-sizeof(fragmentzip_cd)-curr->len_filename); //sanity check
-
+        int64_t checkLen = info->length - ((char*)curr-(char*)info->cd) - sizeof(fragmentzip_cd);
+        assure(checkLen > 0); //sanity check
+        assure(checkLen > curr->len_filename); //sanity check
+        
         if (path_len == curr->len_filename && strncmp(curr->filename, path, path_len) == 0) return curr;
         
         curr = fragmentzip_nextCD(curr);
