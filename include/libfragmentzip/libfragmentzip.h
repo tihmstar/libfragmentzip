@@ -29,7 +29,6 @@
 #define makeBE16(a) makeEndian((char *)(&(a)), 2, 1)
 #define makeLE16(a) makeEndian((char *)(&(a)), 2, 0)
 
-/* WARNING DANGEROUS MACRO */
 #define fragmentzip_nextCD(cd) ((fragmentzip_cd *)(cd->filename+cd->len_filename+cd->len_extra_field+cd->len_file_comment))
 
 #ifdef __cplusplus
@@ -149,8 +148,9 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
 void fragmentzip_close(fragmentzip_t *info);
 
 fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path);
+fragmentzip_cd *fragmentzip_getNextCD(fragmentzip_cd *cd);
 
-
+    
 
 #ifdef __cplusplus
 }

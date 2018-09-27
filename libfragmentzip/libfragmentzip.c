@@ -209,6 +209,17 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     fixEndian_cd(info);
     fixEndian_end_of_cd(info->cd_end); //fix the end_of_central_directoy at the end
     
+    
+    //sanity check data
+    fragmentzip_cd *curr = info->cd;
+    for (int i=0; i<info->cd_end->cd_entries; i++) {
+        int64_t checkLen = info->length - ((char*)curr-(char*)info->cd) - sizeof(fragmentzip_cd);
+        assure(checkLen > 0); //sanity check
+        assure(checkLen > curr->len_filename + curr->len_extra_field + curr->len_file_comment); //sanity check
+        curr = fragmentzip_nextCD(curr);
+    }
+    
+    
 error:
     if (err) {
         fragmentzip_close(info);
@@ -219,6 +230,10 @@ error:
     safeFree(dbuf);
     
     return (err) ? NULL : info;
+}
+
+fragmentzip_cd *fragmentzip_getNextCD(fragmentzip_cd *cd){
+    return fragmentzip_nextCD(cd);
 }
 
 fragmentzip_t *fragmentzip_open(const char *url){
