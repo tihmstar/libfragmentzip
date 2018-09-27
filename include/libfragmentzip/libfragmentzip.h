@@ -101,6 +101,7 @@ typedef struct{
 typedef struct fragmentzip_info{
     char *url;
     CURL *mcurl;
+    FILE *localFile;
     uint64_t length;
     fragmentzip_cd *cd;
     fragmentzip_end_of_cd *cd_end;

@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE(libfragmentzip, 1.0)
 
 # Checks for programs.
 AC_PROG_CC
-CFLAGS+=" -std=c11"
+CFLAGS+=" -std=c11 -D_GNU_SOURCE"
 AC_LANG_C
 
 AC_CONFIG_MACRO_DIRS([m4])
