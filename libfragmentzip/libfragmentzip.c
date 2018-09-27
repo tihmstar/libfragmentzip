@@ -86,7 +86,10 @@ STATIC_INLINE void fixEndian_end_of_cd(fragmentzip_end_of_cd *cde){
     }
 }
 
-STATIC_INLINE void fixEndian_cd(fragmentzip_cd *cd, unsigned int entries){
+STATIC_INLINE int fixEndian_cd(fragmentzip_t *info){
+    int err = 0;
+    fragmentzip_cd *cd = info->cd;
+    unsigned int entries = info->cd_end->cd_entries;
     if (isBigEndian()) {
         for (int i=0; i<entries; i++) {
             makeLE32(cd->signature);
@@ -108,8 +111,11 @@ STATIC_INLINE void fixEndian_cd(fragmentzip_cd *cd, unsigned int entries){
             makeLE32(cd->local_header_offset);
             
             cd = fragmentzip_nextCD(cd);
+            assure((char*)cd-(char*)info->cd < info->length); //sanity check
         }
     }
+error:
+    return err;
 }
 
 CASSERT(sizeof(fragmentzip_cd) == 47, fragmentzip_cd_size_is_wrong);
@@ -199,7 +205,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     info->cd = (fragmentzip_cd*)dbuf->buf;
     info->cd_end = (fragmentzip_end_of_cd*)(((char*)info->cd)+cde->cd_size);
     
-    fixEndian_cd(info->cd,cde->cd_entries);
+    fixEndian_cd(info);
     fixEndian_end_of_cd(info->cd_end); //fix the end_of_central_directoy at the end
     
 error:
@@ -219,6 +225,7 @@ fragmentzip_t *fragmentzip_open(const char *url){
 }
 
 fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
+    int err = 0;
     size_t path_len = strlen(path);
 
     fragmentzip_cd *curr = info->cd;
@@ -227,8 +234,16 @@ fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
         if (path_len == curr->len_filename && strncmp(curr->filename, path, path_len) == 0) return curr;
         
         curr = fragmentzip_nextCD(curr);
+        assure((char*)curr-(char*)info->cd < info->length); //sanity check
     }
-
+    
+error:
+    if (err) {
+        /* we got an error!
+         we may handle it here, or just return NULL, since that's what this function is supposed
+         to return in case of an error anyways.
+        */
+    }
     return NULL;
 }
 
