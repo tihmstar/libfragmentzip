@@ -9,6 +9,7 @@
 #include <libfragmentzip/libfragmentzip.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <zlib.h>
 #include <assert.h>
 
@@ -21,8 +22,6 @@ typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 #define assure(a) do{ if ((a) == 0){err=1; goto error;} }while(0)
 #define retassure(retcode, a) do{ if ((a) == 0){err=retcode; goto error;} }while(0)
 #define safeFree(a) do{ if (a){free(a); a=NULL;} }while(0)
-
-#define bzero(buf, sz) memset((buf), 0, (sz))
 
 typedef struct{
     char *buf;
