@@ -92,6 +92,8 @@ STATIC_INLINE int fixEndian_cd(fragmentzip_t *info){
     unsigned int entries = info->cd_end->cd_entries;
     if (isBigEndian()) {
         for (int i=0; i<entries; i++) {
+            assure((char*)cd-(char*)info->cd <= info->length-sizeof(fragmentzip_cd)); //sanity check
+
             makeLE32(cd->signature);
             makeLE16(cd->version);
             makeLE16(cd->pkzip_version_needed);
@@ -111,7 +113,6 @@ STATIC_INLINE int fixEndian_cd(fragmentzip_t *info){
             makeLE32(cd->local_header_offset);
             
             cd = fragmentzip_nextCD(cd);
-            assure((char*)cd-(char*)info->cd < info->length); //sanity check
         }
     }
 error:
@@ -230,11 +231,11 @@ fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
 
     fragmentzip_cd *curr = info->cd;
     for (int i=0; i<info->cd_end->cd_entries; i++) {
-        
+        assure((char*)curr-(char*)info->cd <= info->length-sizeof(fragmentzip_cd)-curr->len_filename); //sanity check
+
         if (path_len == curr->len_filename && strncmp(curr->filename, path, path_len) == 0) return curr;
         
         curr = fragmentzip_nextCD(curr);
-        assure((char*)curr-(char*)info->cd < info->length); //sanity check
     }
     
 error:
