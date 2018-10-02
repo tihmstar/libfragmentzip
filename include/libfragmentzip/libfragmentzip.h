@@ -150,7 +150,7 @@ void fragmentzip_close(fragmentzip_t *info);
 fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path);
 fragmentzip_cd *fragmentzip_getNextCD(fragmentzip_cd *cd);
 
-    
+const char* fragmentzip_version();
 
 #ifdef __cplusplus
 }

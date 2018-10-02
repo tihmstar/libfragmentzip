@@ -1,14 +1,19 @@
 AC_PREREQ([2.69])
-AC_INIT([libfragmentzip], [1.0], [tihmstar@gmail.com])
+AC_INIT([libfragmentzip], m4_esyscmd([git rev-list --count HEAD | tr -d '\n']), [tihmstar@gmail.com])
+
 AC_CONFIG_HEADERS([config.h])
 AM_PROG_LIBTOOL
 
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE(libfragmentzip, 1.0)
+AM_INIT_AUTOMAKE(libfragmentzip, m4_esyscmd([git rev-list --count HEAD | tr -d '\n']))
 
 # Checks for programs.
 AC_PROG_CC
 CFLAGS+=" -std=c11 -D_GNU_SOURCE"
+CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_COMMIT_COUNT=\\\"$(git rev-list --count HEAD | tr -d '\n')\\\""
+CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_COMMIT_SHA=\\\"$(git rev-parse HEAD | tr -d '\n')\\\""
+
+
 AC_LANG_C
 
 AC_CONFIG_MACRO_DIRS([m4])

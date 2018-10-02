@@ -6,6 +6,7 @@
 //  Copyright © 2016 tihmstar. All rights reserved.
 //
 
+#include "all_libfragmentzip.h"
 #include <libfragmentzip/libfragmentzip.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,7 @@
 #define _impl_CASSERT_LINE(predicate, line, file) \
 typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 
-#define assure(a) do{ if ((a) == 0){err=1; goto error;} }while(0)
+#define assure(a) do{ if ((a) == 0){err=__LINE__; goto error;} }while(0)
 #define retassure(retcode, a) do{ if ((a) == 0){err=retcode; goto error;} }while(0)
 #define safeFree(a) do{ if (a){free(a); a=NULL;} }while(0)
 
@@ -123,11 +124,12 @@ CASSERT(sizeof(fragmentzip_cd) == 47, fragmentzip_cd_size_is_wrong);
 CASSERT(sizeof(fragmentzip_end_of_cd) == 22, fragmentzip_end_of_cd_size_is_wrong);
 
 fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
-    
     int err = 0;
     fragmentzip_t *info = NULL;
     t_downloadBuffer *dbuf = NULL;
     fragmentzip_end_of_cd *cde = NULL;
+    
+    CURLcode cc = CURLE_OK;
     
     assure(dbuf = malloc(sizeof(t_downloadBuffer)));
     bzero(dbuf, sizeof(t_downloadBuffer));
@@ -153,7 +155,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     
     if (info->mcurl) {
-        assure(curl_easy_perform(info->mcurl) == CURLE_OK);
+        assure((cc = curl_easy_perform(info->mcurl)) == CURLE_OK);
         double len = 0;
         curl_easy_getinfo(info->mcurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
         assure((info->length = len)>sizeof(fragmentzip_end_of_cd));
@@ -375,4 +377,8 @@ void fragmentzip_close(fragmentzip_t *info){
         if (info->localFile) fclose(info->localFile);
         free(info);
     }
+}
+
+const char* fragmentzip_version(){
+    return "Libfragmentzip Version: " LIBFRAGMENTZIP_VERSION_COMMIT_SHA " - " LIBFRAGMENTZIP_VERSION_COMMIT_COUNT;
 }

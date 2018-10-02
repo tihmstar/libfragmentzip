@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: libfragmentzip
 Description: Allows downloading single files from a remote zip archive
 Requires: libzip >= 1.0 libcurl >= 1.0
-Version: 1.0
+Version: @VERSION@
 Libs: -L${libdir} -lfragmentzip
 Cflags: -I${includedir}
