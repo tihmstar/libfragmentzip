@@ -324,6 +324,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     switch (lfile->compression) {
         case 0: //store
         {
+            assure(rfile->size_compressed == rfile->size_uncompressed);
             memcpy(uncompressed, compressed->buf, rfile->size_uncompressed);
             break;
         }
