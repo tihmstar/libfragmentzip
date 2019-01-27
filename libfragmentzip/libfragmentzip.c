@@ -24,6 +24,10 @@ typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 #define retassure(retcode, a) do{ if ((a) == 0){err=retcode; goto error;} }while(0)
 #define safeFree(a) do{ if (a){free(a); a=NULL;} }while(0)
 
+#ifdef _WIN32
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#endif
+
 typedef struct{
     char *buf;
     size_t size_buf;
