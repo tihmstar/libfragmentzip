@@ -1,3 +1,4 @@
+xcuserdata/*
 *.DS_Store
 *.patch
 *.diff
@@ -22,3 +23,4 @@ ltmain.sh
 m4
 missing
 stamp-h1
+libfragmentzip.pc

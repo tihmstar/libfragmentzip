@@ -70,14 +70,6 @@ STATIC_INLINE void fixEndian_local_file(fragentzip_local_file *lfile){
     }
 }
 
-STATIC_INLINE void fixEndian_data_descriptor(fragmentzip_data_descriptor *ddesc){
-    if (isBigEndian()) {
-        makeLE32(ddesc->crc32);
-        makeLE32(ddesc->size_compressed);
-        makeLE32(ddesc->size_uncompressed);
-    }
-}
-
 STATIC_INLINE void fixEndian_end_of_cd(fragmentzip_end_of_cd *cde){
     if (isBigEndian()) {
         makeLE32(cde->signature);
@@ -91,12 +83,43 @@ STATIC_INLINE void fixEndian_end_of_cd(fragmentzip_end_of_cd *cde){
     }
 }
 
+STATIC_INLINE void fixEndian_end_of_cd64(fragmentzip64_end_of_cd *cde64){
+    if (isBigEndian()) {
+        makeLE32(cde64->signature);
+        makeLE64(cde64->end_of_cd_size);
+        makeLE16(cde64->version_made);
+        makeLE16(cde64->version_needed);
+        makeLE32(cde64->disk_cur_number);
+        makeLE32(cde64->disk_cd_start_number);
+        makeLE64(cde64->cd_disk_number);
+        makeLE64(cde64->cd_entries);
+        makeLE64(cde64->cd_size);
+        makeLE64(cde64->cd_start_offset);
+    }
+}
+
+STATIC_INLINE void fixEndian_end_of_cd_locator64(fragmentzip64_end_of_cd_locator *cdle64){
+    if (isBigEndian()) {
+        makeLE32(cdle64->signature);
+        makeLE32(cdle64->disk_cd_start_number);
+        makeLE64(cdle64->end_of_cd_record_offset);
+        makeLE32(cdle64->cd_disk_number);
+    }
+}
+
+STATIC_INLINE void fixEndian_extended_information_extra_field64(fragmentzip64_extended_information_extra_field *eief64){
+    if (isBigEndian()) {
+        makeLE16(eief64->field_tag);
+        makeLE16(eief64->field_size);
+    }
+}
+
 STATIC_INLINE int fixEndian_cd(fragmentzip_t *info){
     int err = 0;
     fragmentzip_cd *cd = info->cd;
-    unsigned int entries = info->cd_end->cd_entries;
+    uint64_t entries = info->cd_entries;
     if (isBigEndian()) {
-        for (int i=0; i<entries; i++) {
+        for (uint64_t i=0; i<entries; i++) {
             assure((char*)cd-(char*)info->cd <= info->length-sizeof(fragmentzip_cd)); //sanity check
 
             makeLE32(cd->signature);
@@ -124,7 +147,7 @@ error:
     return err;
 }
 
-CASSERT(sizeof(fragmentzip_cd) == 47, fragmentzip_cd_size_is_wrong);
+CASSERT(sizeof(fragmentzip_cd) == 46, fragmentzip_cd_size_is_wrong);
 CASSERT(sizeof(fragmentzip_end_of_cd) == 22, fragmentzip_end_of_cd_size_is_wrong);
 
 fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
@@ -143,7 +166,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     assure(info->url = strdup(url));
     
-    if (strcmp(info->url, "file://") == 0) {
+    if (strncmp(info->url, "file://", sizeof("file://")-1) == 0) {
         info->mcurl = NULL;
         assure(info->localFile = fopen(info->url+strlen("file://"),"rb"));
     }else{
@@ -183,8 +206,9 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         curl_easy_setopt(info->mcurl, CURLOPT_HTTPGET, 1);
         assure(curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        assure(!fseek(info->localFile, info->length - sizeof(fragmentzip_end_of_cd), SEEK_SET));
-        assure(sizeof(fragmentzip_end_of_cd) == fread(dbuf->buf, 1, sizeof(fragmentzip_end_of_cd), info->localFile));
+        uint64_t doffset = atoll(downloadRange);
+        assure(!fseek(info->localFile, doffset, SEEK_SET));
+        assure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
     }
     
     assure(strncmp(dbuf->buf, "\x50\x4b\x05\x06", 4) == 0);
@@ -192,39 +216,105 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     cde = (fragmentzip_end_of_cd*)dbuf->buf;
     fixEndian_end_of_cd(cde);
     
-    bzero(downloadRange, sizeof(downloadRange));
-    snprintf(downloadRange, sizeof(downloadRange), "%u-%llu",cde->cd_start_offset, info->length-1);
+    if (cde->disk_cur_number        == (uint16_t)-1) info->isZIP64 |= 1;
+    if (cde->disk_cd_start_number   == (uint16_t)-1) info->isZIP64 |= 1;
+    if (cde->cd_disk_number         == (uint16_t)-1) info->isZIP64 |= 1;
+    if (cde->cd_entries             == (uint16_t)-1) info->isZIP64 |= 1;
+    if (cde->cd_size                == (uint32_t)-1) info->isZIP64 |= 1;
+    if (cde->cd_start_offset        == (uint32_t)-1) info->isZIP64 |= 1;
+    if (cde->comment_len            == (uint16_t)-1) info->isZIP64 |= 1;
+
+
+    if (info->isZIP64) {
+        //get fragmentzip64_end_of_cd_locator
+        bzero(downloadRange, sizeof(downloadRange));
+        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd) - sizeof(fragmentzip64_end_of_cd_locator), info->length - sizeof(fragmentzip_end_of_cd));
+        dbuf->size_buf = cde->cd_size + sizeof(fragmentzip64_end_of_cd_locator);
+        
+        dbuf->size_downloaded = 0;
+        assure(dbuf->buf = malloc(dbuf->size_buf));
+        
+        if (info->mcurl) {
+            curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
+            assure(curl_easy_perform(info->mcurl) == CURLE_OK);
+        }else{
+            uint64_t doffset = atoll(downloadRange);
+            uint64_t dsize = atoll(strchr(downloadRange, '-')+1) - doffset;
+            assure(!fseek(info->localFile, doffset, SEEK_SET));
+            assure(dsize == fread(dbuf->buf, 1, dsize, info->localFile));
+        }
+        assure(strncmp(dbuf->buf, "\x50\x4b\x06\x07", 4) == 0);
+        info->internal.cd64_end_locator = (fragmentzip64_end_of_cd_locator*)dbuf->buf;
+        fixEndian_end_of_cd_locator64(info->internal.cd64_end_locator);
+
+        //get fragmentzip64_end_of_cd
+        bzero(downloadRange, sizeof(downloadRange));
+        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->internal.cd64_end_locator->end_of_cd_record_offset, info->internal.cd64_end_locator->end_of_cd_record_offset+sizeof(fragmentzip64_end_of_cd)-1);
+        
+        dbuf->size_buf = sizeof(fragmentzip64_end_of_cd);
+        
+        dbuf->size_downloaded = 0;
+        assure(dbuf->buf = malloc(dbuf->size_buf));
+        
+        if (info->mcurl) {
+            curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
+            assure(curl_easy_perform(info->mcurl) == CURLE_OK);
+        }else{
+            uint64_t doffset = atoll(downloadRange);
+            assure(!fseek(info->localFile, doffset, SEEK_SET));
+            assure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
+        }
+        
+        assure(strncmp(dbuf->buf, "\x50\x4b\x06\x06", 4) == 0);
+        
+        info->internal.cd64_end = (fragmentzip64_end_of_cd*)dbuf->buf;
+        fixEndian_end_of_cd64(info->internal.cd64_end);
+        
+        bzero(downloadRange, sizeof(downloadRange));
+        dbuf->size_buf = info->internal.cd64_end->cd_size + sizeof(fragmentzip64_end_of_cd);
+        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->internal.cd64_end->cd_start_offset, info->internal.cd64_end->cd_start_offset+dbuf->size_buf-1);
+
+    }else{
+        bzero(downloadRange, sizeof(downloadRange));
+        dbuf->size_buf = cde->cd_size + sizeof(fragmentzip_end_of_cd);
+        snprintf(downloadRange, sizeof(downloadRange), "%u-%lu",cde->cd_start_offset, cde->cd_start_offset+dbuf->size_buf-1);
+    }
     
     dbuf->size_downloaded = 0;
-    dbuf->size_buf = cde->cd_size + sizeof(fragmentzip_end_of_cd);
     assure(dbuf->buf = malloc(dbuf->size_buf));
     
     if (info->mcurl) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
         assure(curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        assure(!fseek(info->localFile, cde->cd_start_offset, SEEK_SET));
-        assure(info->length-1-cde->cd_start_offset == fread(dbuf->buf, 1, info->length-1-cde->cd_start_offset, info->localFile));
+        uint64_t doffset = atoll(downloadRange);
+        assure(!fseek(info->localFile, doffset, SEEK_SET));
+        assure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
     }
+    
     
     assure(strncmp(dbuf->buf, "\x50\x4b\x01\x02", 4) == 0);
     
     info->cd = (fragmentzip_cd*)dbuf->buf;
-    info->cd_end = (fragmentzip_end_of_cd*)(((char*)info->cd)+cde->cd_size);
-    
     fixEndian_cd(info);
-    fixEndian_end_of_cd(info->cd_end); //fix the end_of_central_directoy at the end
+
+    if (info->isZIP64) {
+        info->cd_entries = info->internal.cd64_end->cd_entries;
+    }else{
+        info->internal.cd_end = (fragmentzip_end_of_cd*)(((char*)info->cd)+cde->cd_size);
+        fixEndian_end_of_cd(info->internal.cd_end); //fix the end_of_central_directoy at the end
+        info->cd_entries = info->internal.cd_end->cd_entries;
+    }
     
     
     //sanity check data
     fragmentzip_cd *curr = info->cd;
-    for (int i=0; i<info->cd_end->cd_entries; i++) {
+    for (int i=0; i<info->cd_entries; i++) {
         int64_t checkLen = info->length - ((char*)curr-(char*)info->cd) - sizeof(fragmentzip_cd);
         assure(checkLen > 0); //sanity check
         assure(checkLen > curr->len_filename + curr->len_extra_field + curr->len_file_comment); //sanity check
         curr = fragmentzip_nextCD(curr);
     }
-    
     
 error:
     if (err) {
@@ -242,6 +332,63 @@ fragmentzip_cd *fragmentzip_getNextCD(fragmentzip_cd *cd){
     return fragmentzip_nextCD(cd);
 }
 
+int fragmentzip_getFileInfo(fragmentzip_cd *cd, uint64_t *uncompressedSize, uint64_t *compressedSize, uint64_t *headerOffset, uint32_t *disk_num){
+    int err = 0;
+    int extraIndex = 0;
+    fragmentzip64_extended_information_extra_field *cdinfo = NULL;
+    struct{
+        uint64_t uncompressedSize;
+        uint64_t compressedSize;
+        uint64_t headerOffset;
+        uint32_t disk_num;
+    }fields = {};
+    
+    if (cd->len_extra_field>=sizeof(fragmentzip64_extended_information_extra_field)) {
+        cdinfo = (fragmentzip64_extended_information_extra_field*)(((uint8_t*)(cd+1)) + cd->len_filename);
+        fixEndian_extended_information_extra_field64(cdinfo);
+    }
+    
+    if ((fields.uncompressedSize = cd->size_uncompressed) == (uint32_t)-1){
+        assure(cdinfo);
+        assure(cd->len_extra_field>=sizeof(fragmentzip64_extended_information_extra_field) + sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        assure(cdinfo->field_size >= sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        fields.uncompressedSize = cdinfo->extrafield[extraIndex++];
+        makeLE64(fields.uncompressedSize);
+    }
+    
+    if ((fields.compressedSize = cd->size_compressed) == (uint32_t)-1){
+        assure(cdinfo);
+        assure(cd->len_extra_field>=sizeof(fragmentzip64_extended_information_extra_field) + sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        assure(cdinfo->field_size >= sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        fields.compressedSize = cdinfo->extrafield[extraIndex++];
+        makeLE64(fields.compressedSize);
+    }
+    
+    if ((fields.headerOffset = cd->local_header_offset) == (uint32_t)-1){
+        assure(cdinfo);
+        assure(cd->len_extra_field>=sizeof(fragmentzip64_extended_information_extra_field) + sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        assure(cdinfo->field_size >= sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        fields.headerOffset = cdinfo->extrafield[extraIndex++];
+        makeLE64(fields.headerOffset);
+    }
+    if ((fields.disk_num = cd->disk_num) == (uint16_t)-1){
+        assure(cdinfo);
+        assure(cd->len_extra_field>=sizeof(fragmentzip64_extended_information_extra_field) + sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        assure(cdinfo->field_size >= sizeof(uint64_t)*extraIndex + sizeof(uint64_t));
+        fields.disk_num = (uint32_t)cdinfo->extrafield[extraIndex++];
+        makeLE32(fields.disk_num);
+    }
+    
+    if (uncompressedSize)   *uncompressedSize = fields.uncompressedSize;
+    if (compressedSize)     *compressedSize = fields.compressedSize;
+    if (headerOffset)       *headerOffset = fields.headerOffset;
+    if (disk_num)           *disk_num = fields.disk_num;
+    
+error:
+    return err;
+}
+
+
 fragmentzip_t *fragmentzip_open(const char *url){
     return fragmentzip_open_extended(url, curl_easy_init());
 }
@@ -251,7 +398,7 @@ fragmentzip_cd *fragmentzip_getCDForPath(fragmentzip_t *info, const char *path){
     size_t path_len = strlen(path);
 
     fragmentzip_cd *curr = info->cd;
-    for (int i=0; i<info->cd_end->cd_entries; i++) {
+    for (int i=0; i<info->cd_entries; i++) {
         int64_t checkLen = info->length - ((char*)curr-(char*)info->cd) - sizeof(fragmentzip_cd);
         assure(checkLen > 0); //sanity check
         assure(checkLen > curr->len_filename); //sanity check
@@ -277,10 +424,14 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     fragentzip_local_file *lfile = NULL;
     char *uncompressed = NULL;
     FILE *f = NULL;
-    
-    
+    uint64_t uncompressedSize = 0;
+    uint64_t compressedSize = 0;
+    uint64_t headerOffset = 0;
+
     fragmentzip_cd *rfile = NULL;
     retassure(-1,rfile = fragmentzip_getCDForPath(info, remotepath));
+    
+    assure(!fragmentzip_getFileInfo(rfile, &uncompressedSize, &compressedSize, &headerOffset, NULL));
     
     retassure(-2,compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
     bzero(compressed, sizeof(t_downloadBuffer));
@@ -290,15 +441,16 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     retassure(-3,compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)-1));
     
     char downloadRange[100] = {0};
-    snprintf(downloadRange, sizeof(downloadRange), "%u-%u",rfile->local_header_offset,(unsigned)(rfile->local_header_offset + compressed->size_buf-1));
+    snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",headerOffset,headerOffset + compressed->size_buf-1);
     
     if (info->mcurl) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
         curl_easy_setopt(info->mcurl, CURLOPT_WRITEDATA, compressed);
         retassure(-4,curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        retassure(-4,!fseek(info->localFile, rfile->local_header_offset, SEEK_SET));
-        retassure(-4,compressed->size_buf-1 == fread(compressed->buf, 1, compressed->size_buf-1, info->localFile));
+        uint64_t doffset = atoll(downloadRange);
+        assure(!fseek(info->localFile, doffset, SEEK_SET));
+        assure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
     
     retassure(-5,strncmp(compressed->buf, "\x50\x4b\x03\x04", 4) == 0);
@@ -307,29 +459,30 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     fixEndian_local_file(lfile);
     
     compressed->size_downloaded = 0;
-    retassure(-6,compressed->buf = malloc(compressed->size_buf = rfile->size_compressed));
+    retassure(-6,compressed->buf = malloc(compressed->size_buf = compressedSize));
     
     bzero(downloadRange,sizeof(downloadRange));
     
-    unsigned int start = (unsigned int)rfile->local_header_offset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
-    snprintf(downloadRange, sizeof(downloadRange), "%u-%u",start,(unsigned int)(start+compressed->size_buf-1));
+    uint64_t start = headerOffset + sizeof(fragentzip_local_file)-1 + lfile->len_filename + lfile->len_extra_field;
+    snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",start,start+compressed->size_buf-1);
     
     if (info->mcurl) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
         retassure(-7,curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        retassure(-7,!fseek(info->localFile, start, SEEK_SET));
-        retassure(-7,compressed->size_buf-1 == fread(compressed->buf, 1, compressed->size_buf-1, info->localFile));
+        uint64_t doffset = atoll(downloadRange);
+        assure(!fseek(info->localFile, doffset, SEEK_SET));
+        assure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
     
     
-    retassure(-8,uncompressed = malloc(rfile->size_uncompressed));
+    retassure(-8,uncompressed = malloc(uncompressedSize));
     //file downloaded, now unpack it
     switch (lfile->compression) {
         case 0: //store
         {
-            assure(rfile->size_compressed == rfile->size_uncompressed);
-            memcpy(uncompressed, compressed->buf, rfile->size_uncompressed);
+            assure(compressedSize == uncompressedSize);
+            memcpy(uncompressed, compressed->buf, uncompressedSize);
             break;
         }
         case 8: //defalted
@@ -337,9 +490,9 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             z_stream strm = {0};
             retassure(-13, inflateInit2(&strm, -MAX_WBITS) >= 0);
             
-            strm.avail_in = rfile->size_compressed;
+            strm.avail_in = compressedSize;
             strm.next_in = (Bytef *)compressed->buf;
-            strm.avail_out = rfile->size_uncompressed;
+            strm.avail_out = uncompressedSize;
             strm.next_out = (Bytef *)uncompressed;
             
             retassure(-14, inflate(&strm, Z_FINISH) > 0);
@@ -354,11 +507,11 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             break;
     }
     
-    retassure(-10,crc32(0, (unsigned char *)uncompressed, rfile->size_uncompressed) == rfile->crc32);
+    retassure(-10, crc32_z(0, (unsigned char *)uncompressed, uncompressedSize) == rfile->crc32);
     
     //file unpacked, now save it
     retassure(-11,f = fopen(savepath, "w"));
-    retassure(-12,fwrite(uncompressed, 1, rfile->size_uncompressed, f) == rfile->size_uncompressed);
+    retassure(-12,fwrite(uncompressed, 1, uncompressedSize, f) == uncompressedSize);
     
     
 error:
@@ -380,6 +533,8 @@ void fragmentzip_close(fragmentzip_t *info){
         if (info->mcurl) curl_free(info->mcurl);
         safeFree(info->cd); //don't free info->cd_end because it points into the same buffer
         if (info->localFile) fclose(info->localFile);
+        safeFree(info->internal.cd64_end_locator);
+        safeFree(info->internal.cd64_end);
         free(info);
     }
 }
