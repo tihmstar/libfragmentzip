@@ -147,6 +147,24 @@ error:
     return err;
 }
 
+uint32_t crc32_for_byte(uint32_t r) {
+    for(int j = 0; j < 8; ++j)
+        r = (r & 1? 0: (uint32_t)0xEDB88320L) ^ r >> 1;
+    return r ^ (uint32_t)0xFF000000L;
+}
+
+uint32_t mycrc32(const void *data, size_t n_bytes) {
+    uint32_t crc = 0;
+    static uint32_t table[0x100] = {};
+    if(!*table)
+        for(uint32_t i = 0; i < 0x100; ++i)
+            table[i] = crc32_for_byte(i);
+    for(size_t i = 0; i < n_bytes; ++i)
+        crc = table[(uint8_t)crc ^ ((uint8_t*)data)[i]] ^ crc >> 8;
+    return crc;
+}
+
+
 CASSERT(sizeof(fragmentzip_cd) == 46, fragmentzip_cd_size_is_wrong);
 CASSERT(sizeof(fragmentzip_end_of_cd) == 22, fragmentzip_end_of_cd_size_is_wrong);
 
@@ -507,7 +525,7 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
             break;
     }
     
-    retassure(-10, crc32_z(0, (unsigned char *)uncompressed, uncompressedSize) == rfile->crc32);
+    retassure(-10, mycrc32((unsigned char *)uncompressed, uncompressedSize) == rfile->crc32);
     
     //file unpacked, now save it
     retassure(-11,f = fopen(savepath, "w"));
