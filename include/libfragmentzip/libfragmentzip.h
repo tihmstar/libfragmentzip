@@ -55,7 +55,7 @@ typedef struct{
     uint32_t size_uncompressed;
     uint16_t len_filename;
     uint16_t len_extra_field;
-    char filename[1]; //variable length
+    char filename[0]; //variable length
 //    char extra_field[]; //variable length
 } ATTRIBUTE_PACKED fragentzip_local_file;
 
@@ -131,7 +131,7 @@ typedef struct fragmentzip_info{
     int isZIP64;
     fragmentzip_cd *cd;
     uint64_t cd_entries;
-    union {
+    struct {
         struct{
             fragmentzip_end_of_cd *cd_end;
         };
