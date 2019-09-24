@@ -172,7 +172,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     int err = 0;
     fragmentzip_t *info = NULL;
     t_downloadBuffer *dbuf = NULL;
-    fragmentzip_end_of_cd *cde = NULL;
     
     CURLcode cc = CURLE_OK;
     
@@ -231,23 +230,23 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     assure(strncmp(dbuf->buf, "\x50\x4b\x05\x06", 4) == 0);
     
-    cde = (fragmentzip_end_of_cd*)dbuf->buf;dbuf->buf = NULL;
-    fixEndian_end_of_cd(cde);
+    info->internal.cd_end = (fragmentzip_end_of_cd*)dbuf->buf;dbuf->buf = NULL;
+    fixEndian_end_of_cd(info->internal.cd_end);
     
-    if (cde->disk_cur_number        == (uint16_t)-1) info->isZIP64 |= 1;
-    if (cde->disk_cd_start_number   == (uint16_t)-1) info->isZIP64 |= 1;
-    if (cde->cd_disk_number         == (uint16_t)-1) info->isZIP64 |= 1;
-    if (cde->cd_entries             == (uint16_t)-1) info->isZIP64 |= 1;
-    if (cde->cd_size                == (uint32_t)-1) info->isZIP64 |= 1;
-    if (cde->cd_start_offset        == (uint32_t)-1) info->isZIP64 |= 1;
-    if (cde->comment_len            == (uint16_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->disk_cur_number        == (uint16_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->disk_cd_start_number   == (uint16_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->cd_disk_number         == (uint16_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->cd_entries             == (uint16_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->cd_size                == (uint32_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->cd_start_offset        == (uint32_t)-1) info->isZIP64 |= 1;
+    if (info->internal.cd_end->comment_len            == (uint16_t)-1) info->isZIP64 |= 1;
 
 
     if (info->isZIP64) {
         //get fragmentzip64_end_of_cd_locator
         bzero(downloadRange, sizeof(downloadRange));
         snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd) - sizeof(fragmentzip64_end_of_cd_locator), info->length - sizeof(fragmentzip_end_of_cd));
-        dbuf->size_buf = cde->cd_size + sizeof(fragmentzip64_end_of_cd_locator);
+        dbuf->size_buf = info->internal.cd_end->cd_size + sizeof(fragmentzip64_end_of_cd_locator);
         
         dbuf->size_downloaded = 0;
         assure(dbuf->buf = malloc(dbuf->size_buf));
@@ -294,8 +293,8 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
 
     }else{
         bzero(downloadRange, sizeof(downloadRange));
-        dbuf->size_buf = cde->cd_size + sizeof(fragmentzip_end_of_cd);
-        snprintf(downloadRange, sizeof(downloadRange), "%u-%lu",cde->cd_start_offset, cde->cd_start_offset+dbuf->size_buf-1);
+        dbuf->size_buf = info->internal.cd_end->cd_size + sizeof(fragmentzip_end_of_cd);
+        snprintf(downloadRange, sizeof(downloadRange), "%u-%lu",info->internal.cd_end->cd_start_offset, info->internal.cd_end->cd_start_offset+dbuf->size_buf-1);
     }
     
     dbuf->size_downloaded = 0;
@@ -319,8 +318,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     if (info->isZIP64) {
         info->cd_entries = info->internal.cd64_end->cd_entries;
     }else{
-        info->internal.cd_end = (fragmentzip_end_of_cd*)(((char*)info->cd)+cde->cd_size);
-        fixEndian_end_of_cd(info->internal.cd_end); //fix the end_of_central_directoy at the end
         info->cd_entries = info->internal.cd_end->cd_entries;
     }
     
@@ -340,7 +337,6 @@ error:
         safeFree(dbuf->buf);
         safeFree(dbuf);
     }
-    safeFree(cde);
     safeFree(dbuf);
     
     return (err) ? NULL : info;
@@ -549,7 +545,8 @@ void fragmentzip_close(fragmentzip_t *info){
     if (info){
         safeFree(info->url);
         if (info->mcurl) curl_free(info->mcurl);
-        safeFree(info->cd); //don't free info->cd_end because it points into the same buffer
+        safeFree(info->internal.cd_end);
+        safeFree(info->cd);
         if (info->localFile) fclose(info->localFile);
         safeFree(info->internal.cd64_end_locator);
         safeFree(info->internal.cd64_end);
