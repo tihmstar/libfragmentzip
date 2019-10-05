@@ -7,7 +7,7 @@
 //
 
 #include "all_libfragmentzip.h"
-#include "libfragmentzip.h"
+#include "./libfragmentzip/libfragmentzip.h"
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
