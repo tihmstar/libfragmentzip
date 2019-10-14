@@ -6,16 +6,18 @@
 //  Copyright © 2016 tihmstar. All rights reserved.
 //
 
-#include "all_libfragmentzip.h"
-#include <libfragmentzip/libfragmentzip.h>
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <zlib.h>
 #include <assert.h>
 
-#define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
+#include <libfragmentzip/libfragmentzip.h>
+#include "all.h"
 
+#define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
 #define _impl_PASTE(a,b) a##b
 #define _impl_CASSERT_LINE(predicate, line, file) \
 typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
@@ -143,6 +145,7 @@ STATIC_INLINE int fixEndian_cd(fragmentzip_t *info){
             cd = fragmentzip_nextCD(cd);
         }
     }
+
 error:
     return err;
 }
@@ -163,7 +166,6 @@ uint32_t mycrc32(const void *data, size_t n_bytes) {
         crc = table[(uint8_t)crc ^ ((uint8_t*)data)[i]] ^ crc >> 8;
     return crc;
 }
-
 
 CASSERT(sizeof(fragmentzip_cd) == 46, fragmentzip_cd_size_is_wrong);
 CASSERT(sizeof(fragmentzip_end_of_cd) == 22, fragmentzip_end_of_cd_size_is_wrong);
@@ -197,7 +199,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         curl_easy_setopt(info->mcurl, CURLOPT_FOLLOWLOCATION, 1L);
     }
     
-    
     if (info->mcurl) {
         assure((cc = curl_easy_perform(info->mcurl)) == CURLE_OK);
         double len = 0;
@@ -208,10 +209,8 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         assure((info->length = ftell(info->localFile))>sizeof(fragmentzip_end_of_cd));
     }
     
-    
     //get end of central directory
     assure(dbuf->buf = malloc(dbuf->size_buf = sizeof(fragmentzip_end_of_cd)));
-    
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd), info->length-1);
@@ -240,7 +239,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     if (info->internal.cd_end->cd_size                == (uint32_t)-1) info->isZIP64 |= 1;
     if (info->internal.cd_end->cd_start_offset        == (uint32_t)-1) info->isZIP64 |= 1;
     if (info->internal.cd_end->comment_len            == (uint16_t)-1) info->isZIP64 |= 1;
-
 
     if (info->isZIP64) {
         //get fragmentzip64_end_of_cd_locator
@@ -309,7 +307,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         assure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
     }
     
-    
     assure(strncmp(dbuf->buf, "\x50\x4b\x01\x02", 4) == 0);
     
     info->cd = (fragmentzip_cd*)dbuf->buf; dbuf->buf = NULL;
@@ -320,7 +317,6 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     }else{
         info->cd_entries = info->internal.cd_end->cd_entries;
     }
-    
     
     //sanity check data
     fragmentzip_cd *curr = info->cd;
@@ -401,7 +397,6 @@ int fragmentzip_getFileInfo(fragmentzip_cd *cd, uint64_t *uncompressedSize, uint
 error:
     return err;
 }
-
 
 fragmentzip_t *fragmentzip_open(const char *url){
     return fragmentzip_open_extended(url, curl_easy_init());
@@ -489,7 +484,6 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
         assure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
     
-    
     retassure(-8,uncompressed = malloc(uncompressedSize));
     //file downloaded, now unpack it
     switch (lfile->compression) {
@@ -527,7 +521,6 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
     retassure(-11,f = fopen(savepath, "w"));
     retassure(-12,fwrite(uncompressed, 1, uncompressedSize, f) == uncompressedSize);
     
-    
 error:
     if (compressed){
         safeFree(compressed->buf);
@@ -539,7 +532,6 @@ error:
     
     return err;
 }
-
 
 void fragmentzip_close(fragmentzip_t *info){
     if (info){
@@ -555,5 +547,5 @@ void fragmentzip_close(fragmentzip_t *info){
 }
 
 const char* fragmentzip_version(){
-    return "Libfragmentzip Version: " LIBFRAGMENTZIP_VERSION_COMMIT_SHA " - " LIBFRAGMENTZIP_VERSION_COMMIT_COUNT;
+    return "Libfragmentzip version: " LIBFRAGMENTZIP_VERSION_SHA " - " LIBFRAGMENTZIP_VERSION_COUNT;
 }

@@ -12,12 +12,26 @@ AC_PROG_CC
 CFLAGS+=" -std=c11 -D_GNU_SOURCE"
 
 # Versioning.
-CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_COMMIT_COUNT=\\\"$(git rev-list --count HEAD | tr -d '\n')\\\""
-CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_COMMIT_SHA=\\\"$(git rev-parse HEAD | tr -d '\n')\\\""
+CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_COUNT=\\\"$(git rev-list --count HEAD | tr -d '\n')\\\""
+CFLAGS+=" -D LIBFRAGMENTZIP_VERSION_SHA=\\\"$(git rev-parse HEAD | tr -d '\n')\\\""
 
 AC_LANG_C
-
 AC_CONFIG_MACRO_DIRS([m4])
+
+# Checks the platform.
+AC_MSG_CHECKING([whether to enable WIN32 specific flags])
+case "$host_os" in
+*mingw*)
+        win32=true
+        AC_MSG_RESULT([yes])
+	AC_CHECK_TOOL(WINDRES, windres)
+  ;;
+*)
+        win32=false
+        AC_MSG_RESULT([no])
+  ;;
+esac
+AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
 
 # Checks for libraries.
 PKG_CHECK_MODULES(curl, libcurl >= 1.0)
@@ -25,7 +39,7 @@ PKG_CHECK_MODULES(libzip, libzip >= 1.0)
 PKG_CHECK_MODULES(zlib, zlib >= 1.0)
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h])
+AC_CHECK_HEADERS([stdlib.h string.h stdio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
