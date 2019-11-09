@@ -179,6 +179,9 @@ typedef void (*fragmentzip_process_callback_t)(unsigned int progress);
 fragmentzip_t *fragmentzip_open(const char *url);
 fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl); //pass custom CURL with web auth by basic/digest or cookies
 
+//outbuf will be allocated by libfragmentzip, caller is responsible for freeing
+int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, char **outBuf, size_t *outSize, fragmentzip_process_callback_t callback);
+
 int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const char *savepath, fragmentzip_process_callback_t callback);
 void fragmentzip_close(fragmentzip_t *info);
 
