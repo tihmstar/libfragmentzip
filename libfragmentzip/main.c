@@ -10,8 +10,6 @@
 #include "libfragmentzip.h"
 
 int main(int argc, const char * argv[]) {
-
-    
     fragmentzip_t *tt = fragmentzip_open("http://updates-http.cdn-apple.com/2019FallFCS/fullrestores/061-08653/B9079E72-C875-11E9-824B-8D27C2D77BF5/iPhone12,3,iPhone12,5_13.0_17A577_Restore.ipsw");
     if (!tt) {
         printf("failed to open zip\n");

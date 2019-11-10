@@ -190,7 +190,7 @@ fragmentzip_cd *fragmentzip_getNextCD(fragmentzip_cd *cd);
 
 int fragmentzip_getFileInfo(fragmentzip_cd *cd, uint64_t *compressedSize, uint64_t *uncompressedSize, uint64_t *headerOffset, uint32_t *disk_num);
 
-const char* fragmentzip_version();
+const char* fragmentzip_version(void);
 
 #ifdef __cplusplus
 }
