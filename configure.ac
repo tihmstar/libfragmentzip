@@ -35,19 +35,19 @@ esac
 AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
 
 LIBCURL_REQUIRES_STR="libcurl >= 1.0"
-LIBZIP_REQUIRES_STR="libzip >= 1.0"
 LIBZ_REQUIRES_STR="zlib >= 1.0"
 LIBGENERAL_REQUIRES_STR="libgeneral >= 48"
 
+# check for large file support
+AC_SYS_LARGEFILE
+AC_FUNC_FSEEKO
 
 # Checks for libraries.
 PKG_CHECK_MODULES(curl, $LIBCURL_REQUIRES_STR)
-PKG_CHECK_MODULES(libzip, $LIBZIP_REQUIRES_STR)
 PKG_CHECK_MODULES(zlib, $LIBZ_REQUIRES_STR)
 PKG_CHECK_MODULES(libgeneral, $LIBGENERAL_REQUIRES_STR)
 
 AC_SUBST([libcurl_requires], [$LIBCURL_REQUIRES_STR])
-AC_SUBST([libzip_requires], [$LIBZIP_REQUIRES_STR])
 AC_SUBST([libz_requires], [$LIBZ_REQUIRES_STR])
 
 # Checks for header files.
