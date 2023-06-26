@@ -451,7 +451,9 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     
     cassure(compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
     bzero(compressed, sizeof(t_downloadBuffer));
-        
+    
+    compressed->callback = callback;
+    
     cassure(compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)));
     
     char downloadRange[100] = {0};
@@ -466,8 +468,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
         cassure(!fseek(info->localFile, doffset, SEEK_SET));
         cassure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
-    compressed->callback = callback;
-
+    
     cassure(strncmp(compressed->buf, "\x50\x4b\x03\x04", 4) == 0);
     
     lfile = (fragentzip_local_file*)compressed->buf;
