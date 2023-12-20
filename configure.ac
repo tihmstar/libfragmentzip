@@ -22,7 +22,7 @@ AC_PROG_CC
 # Checks the platform.
 AC_MSG_CHECKING([whether to enable WIN32 specific flags])
 case "$host_os" in
-*mingw*)
+*mingw*|*msys*)
         win32=true
         AC_MSG_RESULT([yes])
 	AC_CHECK_TOOL(WINDRES, windres)
