@@ -1,5 +1,5 @@
-AM_CFLAGS  = $(zlib_CFLAGS) $(curl_CFLAGS) -I$(top_srcdir)/include
-AM_LDFLAGS = $(zlib_LIBS) $(curl_LIBS)
+AM_CFLAGS  = -I$(top_srcdir)/include $(curl_CFLAGS) $(libgeneral_CFLAGS) $(zlib_CFLAGS)
+AM_LDFLAGS = $(curl_LIBS) $(libgeneral_LIBS) $(zlib_LIBS)
 
 lib_LTLIBRARIES = libfragmentzip.la
 libfragmentzip_la_CFLAGS = $(AM_CFLAGS)
