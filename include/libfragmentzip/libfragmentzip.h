@@ -10,9 +10,10 @@
 #define libfragmentzip_h
 
 #include <curl/curl.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <sys/types.h>
+#include <stdbool.h>
 
 #ifdef _WIN32
 #define STATIC_INLINE static __inline
@@ -36,11 +37,6 @@
 #ifdef __cplusplus
 extern "C"
 {
-#else
-typedef enum{
-    false = 0,
-    true = 1
-}bool;
 #endif
 
 typedef struct{
