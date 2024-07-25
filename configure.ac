@@ -19,20 +19,29 @@ AC_SUBST([VERSION_COMMIT_SHA], ["m4_esyscmd([git rev-parse HEAD | tr -d '\n'])"]
 AC_PROG_CXX
 AC_PROG_CC
 
+CFLAGS+=" -std=c11"
+
 # Checks the platform.
 AC_MSG_CHECKING([whether to enable WIN32 specific flags])
 case "$host_os" in
 *mingw*|*msys*)
-        win32=true
-        AC_MSG_RESULT([yes])
-	AC_CHECK_TOOL(WINDRES, windres)
+    win32=true
+    AC_MSG_RESULT([yes])
+    AC_CHECK_TOOL(WINDRES, windres)
   ;;
 *)
-        win32=false
-        AC_MSG_RESULT([no])
+    win32=false
+    AC_MSG_RESULT([no])
   ;;
 esac
 AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
+
+AC_ARG_ENABLE([debug],
+            [AS_HELP_STRING([--enable-debug],
+            [enable debug build(default is no)])],
+            [debug_build=true],
+            [debug_build=false])
+
 
 LIBCURL_REQUIRES_STR="libcurl >= 1.0"
 LIBZ_REQUIRES_STR="zlib >= 1.0"
@@ -50,6 +59,11 @@ PKG_CHECK_MODULES(libgeneral, $LIBGENERAL_REQUIRES_STR)
 AC_SUBST([libcurl_requires], [$LIBCURL_REQUIRES_STR])
 AC_SUBST([libz_requires], [$LIBZ_REQUIRES_STR])
 
+if test "$debug_build" = true; then
+  echo "*** Note: debug build requested ***"
+  CFLAGS+=" -g -O0 -DDEBUG=1"
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h stdio.h])
 
@@ -66,7 +80,7 @@ AC_CHECK_FUNCS([bzero strdup])
 AC_CONFIG_FILES([Makefile
                  include/Makefile
                  libfragmentzip/Makefile
-		             libfragmentzip.pc])
+                 libfragmentzip.pc])
 AC_OUTPUT
 
 echo "

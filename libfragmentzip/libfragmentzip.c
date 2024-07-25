@@ -7,7 +7,6 @@
 //
 
 
-#define _POSIX_C_SOURCE 200809L
 #define _FILE_OFFSET_BITS 64
 
 #include <libgeneral/macros.h>
@@ -28,7 +27,7 @@
 #define _impl_CASSERT_LINE(predicate, line, file) \
 typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 
-#ifdef HAVE_BZERO
+#ifndef HAVE_BZERO
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #endif
 
@@ -440,7 +439,8 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     uint64_t uncompressedSize = 0;
     uint64_t compressedSize = 0;
     uint64_t headerOffset = 0;
-    
+    z_stream strm = {0};
+
     *outBuf = NULL;
     *outSize = 0;
 
@@ -491,7 +491,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
         cassure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
     
-    cassure(uncompressed = malloc(uncompressedSize));
+    cassure(uncompressed = calloc(1,uncompressedSize));
     //file downloaded, now unpack it
     switch (lfile->compression) {
         case 0: //store
@@ -502,7 +502,6 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
         }
         case 8: //defalted
         {
-            z_stream strm = {0};
             cassure(inflateInit2(&strm, -MAX_WBITS) >= 0);
             
             strm.avail_in = (uInt)compressedSize;
@@ -534,6 +533,7 @@ error:
     }
     safeFree(uncompressed);
     safeFree(lfile);
+    inflateEnd(&strm);
     
     return err;
 }

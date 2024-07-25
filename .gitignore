@@ -28,3 +28,5 @@ stamp-h1
 xcuserdata
 Build
 configure~
+project.xcworkspace
+xcshareddata
