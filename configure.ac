@@ -75,7 +75,7 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([bzero strdup])
+AC_CHECK_FUNCS([strdup])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
