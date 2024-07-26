@@ -21,6 +21,7 @@
 #include <strings.h>
 #include <zlib.h>
 #include <assert.h>
+#include <inttypes.h>
 #include <libfragmentzip/libfragmentzip.h>
 
 #define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
@@ -210,7 +211,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     cassure(dbuf->buf = malloc(dbuf->size_buf = sizeof(fragmentzip_end_of_cd)));
     
     char downloadRange[100] = {0};
-    snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd), info->length-1);
+    snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64 ,info->length - sizeof(fragmentzip_end_of_cd), info->length-1);
     
     if (!info->localFile) {
         curl_easy_setopt(info->mcurl, CURLOPT_WRITEFUNCTION, &downloadFunction);
@@ -245,7 +246,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     if (info->isZIP64) {
         //get fragmentzip64_end_of_cd_locator
         memset(downloadRange, 0, sizeof(downloadRange));
-        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->length - sizeof(fragmentzip_end_of_cd) - sizeof(fragmentzip64_end_of_cd_locator), info->length - sizeof(fragmentzip_end_of_cd));
+        snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,info->length - sizeof(fragmentzip_end_of_cd) - sizeof(fragmentzip64_end_of_cd_locator), info->length - sizeof(fragmentzip_end_of_cd));
         dbuf->size_buf = info->internal.cd_end->cd_size + sizeof(fragmentzip64_end_of_cd_locator);
         
         dbuf->size_downloaded = 0;
@@ -266,7 +267,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
 
         //get fragmentzip64_end_of_cd
         memset(downloadRange, 0, sizeof(downloadRange));
-        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->internal.cd64_end_locator->end_of_cd_record_offset, info->internal.cd64_end_locator->end_of_cd_record_offset+sizeof(fragmentzip64_end_of_cd)-1);
+        snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,info->internal.cd64_end_locator->end_of_cd_record_offset, info->internal.cd64_end_locator->end_of_cd_record_offset+sizeof(fragmentzip64_end_of_cd)-1);
         
         dbuf->size_buf = sizeof(fragmentzip64_end_of_cd);
         
@@ -289,12 +290,12 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         
         memset(downloadRange, 0, sizeof(downloadRange));
         dbuf->size_buf = info->internal.cd64_end->cd_size + sizeof(fragmentzip64_end_of_cd);
-        snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",info->internal.cd64_end->cd_start_offset, info->internal.cd64_end->cd_start_offset+dbuf->size_buf-1);
+        snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,info->internal.cd64_end->cd_start_offset, info->internal.cd64_end->cd_start_offset+dbuf->size_buf-1);
 
     }else{
         memset(downloadRange, 0, sizeof(downloadRange));
         dbuf->size_buf = info->internal.cd_end->cd_size + sizeof(fragmentzip_end_of_cd);
-        snprintf(downloadRange, sizeof(downloadRange), "%u-%lu",info->internal.cd_end->cd_start_offset, info->internal.cd_end->cd_start_offset+dbuf->size_buf-1);
+        snprintf(downloadRange, sizeof(downloadRange), "%" PRIu32 "-%" PRIu64,info->internal.cd_end->cd_start_offset, info->internal.cd_end->cd_start_offset+dbuf->size_buf-1);
     }
     
     dbuf->size_downloaded = 0;
@@ -455,7 +456,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     cassure(compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)));
     
     char downloadRange[100] = {0};
-    snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",headerOffset,headerOffset + compressed->size_buf-1);
+    snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,headerOffset,headerOffset + compressed->size_buf-1);
     
     if (!info->localFile) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
@@ -478,7 +479,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     memset(downloadRange, 0, sizeof(downloadRange));
     
     uint64_t start = headerOffset + sizeof(fragentzip_local_file) + lfile->len_filename + lfile->len_extra_field;
-    snprintf(downloadRange, sizeof(downloadRange), "%llu-%llu",start,start+compressed->size_buf-1);
+    snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,start,start+compressed->size_buf-1);
     
     if (!info->localFile) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
