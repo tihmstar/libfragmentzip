@@ -45,7 +45,7 @@ AC_ARG_ENABLE([debug],
 
 LIBCURL_REQUIRES_STR="libcurl >= 1.0"
 LIBZ_REQUIRES_STR="zlib >= 1.0"
-LIBGENERAL_REQUIRES_STR="libgeneral >= 48"
+LIBGENERAL_REQUIRES_STR="libgeneral >= 80"
 
 # check for large file support
 AC_SYS_LARGEFILE
