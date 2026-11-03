@@ -24,12 +24,12 @@ CFLAGS+=" -std=c11"
 # Checks the platform.
 AC_MSG_CHECKING([whether to enable WIN32 specific flags])
 case "$host_os" in
-*mingw*|*msys*)
+  *mingw32*|*cygwin*|*msys*)
     win32=true
     AC_MSG_RESULT([yes])
     AC_CHECK_TOOL(WINDRES, windres)
   ;;
-*)
+  *)
     win32=false
     AC_MSG_RESULT([no])
   ;;

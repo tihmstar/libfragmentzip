@@ -24,6 +24,13 @@
 #include <inttypes.h>
 #include <libfragmentzip/libfragmentzip.h>
 
+#ifdef _WIN32
+    // Force 64-bit file positioning on Windows
+    #define ftell _ftelli64
+    #define fseek _fseeki64
+    #define off_t __int64  // If you use off_t types
+#endif
+
 #define CASSERT(predicate, file) _impl_CASSERT_LINE(predicate,__LINE__,file)
 #define _impl_PASTE(a,b) a##b
 #define _impl_CASSERT_LINE(predicate, line, file) \
@@ -177,17 +184,15 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     CURLcode cc = CURLE_OK;
     
-    cassure(dbuf = malloc(sizeof(t_downloadBuffer)));
-    memset(dbuf, 0, sizeof(t_downloadBuffer));
+    cassure(dbuf = calloc(sizeof(t_downloadBuffer),1));
     
-    cassure(info = (fragmentzip_t*)malloc(sizeof(fragmentzip_t)));
-    memset(info, 0, sizeof(fragmentzip_t));
+    cassure(info = (fragmentzip_t*)calloc(sizeof(fragmentzip_t), 1));
     
     cassure(info->url = strdup(url));
     cassure(info->mcurl = mcurl);
     
     if (strncmp(info->url, "file://", sizeof("file://")-1) == 0) {
-        cassure(info->localFile = fopen(info->url+strlen("file://"),"rb"));
+        cassure(info->localFile = fopen(info->url+sizeof("file://")-1,"rb"));
     }else{
         curl_easy_setopt(info->mcurl, CURLOPT_CONNECTTIMEOUT, 30L); //30 sec connect timeout
         curl_easy_setopt(info->mcurl, CURLOPT_URL, info->url);
@@ -199,8 +204,8 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     
     if (!info->localFile) {
         cassure((cc = curl_easy_perform(info->mcurl)) == CURLE_OK);
-        double len = 0;
-        curl_easy_getinfo(info->mcurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
+        curl_off_t len = 0;
+        curl_easy_getinfo(info->mcurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &len);
         cassure((info->length = len)>sizeof(fragmentzip_end_of_cd));
     }else{
         cassure(!fseek(info->localFile, 0, SEEK_END));
@@ -208,7 +213,7 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     }
     
     //get end of central directory
-    cassure(dbuf->buf = malloc(dbuf->size_buf = sizeof(fragmentzip_end_of_cd)));
+    cassure(dbuf->buf = calloc(dbuf->size_buf = sizeof(fragmentzip_end_of_cd),1));
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64 ,info->length - sizeof(fragmentzip_end_of_cd), info->length-1);
@@ -220,12 +225,12 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         curl_easy_setopt(info->mcurl, CURLOPT_HTTPGET, 1);
 
 
-        curl_easy_setopt(info->mcurl, CURLOPT_CONNECTTIMEOUT, 15L); //30 sec connect timeout
+        curl_easy_setopt(info->mcurl, CURLOPT_CONNECTTIMEOUT, 30L); //30 sec connect timeout
         curl_easy_setopt(info->mcurl, CURLOPT_FOLLOWLOCATION, 1);
         
         cassure(curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        uint64_t doffset = atoll(downloadRange);
+        uint64_t doffset = strtoull(downloadRange, NULL, 10);
         cassure(!fseek(info->localFile, doffset, SEEK_SET));
         cassure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
     }
@@ -250,14 +255,14 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         dbuf->size_buf = info->internal.cd_end->cd_size + sizeof(fragmentzip64_end_of_cd_locator);
         
         dbuf->size_downloaded = 0;
-        cassure(dbuf->buf = malloc(dbuf->size_buf));
+        cassure(dbuf->buf = calloc(dbuf->size_buf, 1));
         
         if (!info->localFile) {
             curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
             cassure(curl_easy_perform(info->mcurl) == CURLE_OK);
         }else{
-            uint64_t doffset = atoll(downloadRange);
-            uint64_t dsize = atoll(strchr(downloadRange, '-')+1) - doffset;
+            uint64_t doffset = strtoull(downloadRange, NULL, 10);
+            uint64_t dsize = strtoull(strchr(downloadRange, '-')+1, NULL, 10) - doffset;
             cassure(!fseek(info->localFile, doffset, SEEK_SET));
             cassure(dsize == fread(dbuf->buf, 1, dsize, info->localFile));
         }
@@ -272,13 +277,13 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
         dbuf->size_buf = sizeof(fragmentzip64_end_of_cd);
         
         dbuf->size_downloaded = 0;
-        cassure(dbuf->buf = malloc(dbuf->size_buf));
+        cassure(dbuf->buf = calloc(dbuf->size_buf, 1));
         
         if (!info->localFile) {
             curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
             cassure(curl_easy_perform(info->mcurl) == CURLE_OK);
         }else{
-            uint64_t doffset = atoll(downloadRange);
+            uint64_t doffset = strtoull(downloadRange, NULL, 10);
             cassure(!fseek(info->localFile, doffset, SEEK_SET));
             cassure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
         }
@@ -299,13 +304,13 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
     }
     
     dbuf->size_downloaded = 0;
-    cassure(dbuf->buf = malloc(dbuf->size_buf));
+    cassure(dbuf->buf = calloc(dbuf->size_buf, 1));
     
     if (!info->localFile) {
         curl_easy_setopt(info->mcurl, CURLOPT_RANGE, downloadRange);
         cassure(curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        uint64_t doffset = atoll(downloadRange);
+        uint64_t doffset = strtoull(downloadRange, NULL, 10);
         cassure(!fseek(info->localFile, doffset, SEEK_SET));
         cassure(dbuf->size_buf == fread(dbuf->buf, 1, dbuf->size_buf, info->localFile));
     }
@@ -333,9 +338,8 @@ fragmentzip_t *fragmentzip_open_extended(const char *url, CURL *mcurl){
 error:
     if (err) {
         fragmentzip_close(info);
-        safeFree(dbuf->buf);
-        safeFree(dbuf);
     }
+    safeFree(dbuf->buf);
     safeFree(dbuf);
     
     return (err) ? NULL : info;
@@ -448,12 +452,11 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     
     cassure(!fragmentzip_getFileInfo(rfile, &uncompressedSize, &compressedSize, &headerOffset, NULL));
     
-    cassure(compressed = (t_downloadBuffer*)malloc(sizeof(t_downloadBuffer)));
-    memset(compressed, 0, sizeof(t_downloadBuffer));
+    cassure(compressed = (t_downloadBuffer*)calloc(sizeof(t_downloadBuffer), 1));
     
     compressed->callback = callback;
     
-    cassure(compressed->buf = (char*)malloc(compressed->size_buf = sizeof(fragentzip_local_file)));
+    cassure(compressed->buf = (char*)calloc(compressed->size_buf = sizeof(fragentzip_local_file), 1));
     
     char downloadRange[100] = {0};
     snprintf(downloadRange, sizeof(downloadRange), "%" PRIu64 "-%" PRIu64,headerOffset,headerOffset + compressed->size_buf-1);
@@ -463,7 +466,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
         curl_easy_setopt(info->mcurl, CURLOPT_WRITEDATA, compressed);
         cassure(curl_easy_perform(info->mcurl) == CURLE_OK);
     }else{
-        uint64_t doffset = atoll(downloadRange);
+        uint64_t doffset = strtoull(downloadRange, NULL, 10);
         cassure(!fseek(info->localFile, doffset, SEEK_SET));
         cassure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
@@ -474,7 +477,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
     fixEndian_local_file(lfile);
     
     compressed->size_downloaded = 0;
-    cassure(compressed->buf = malloc(compressed->size_buf = compressedSize));
+    cassure(compressed->buf = calloc(compressed->size_buf = compressedSize, 1));
     
     memset(downloadRange, 0, sizeof(downloadRange));
     
@@ -490,7 +493,7 @@ int fragmentzip_download_to_memory(fragmentzip_t *info, const char *remotepath, 
         cassure(compressed->size_buf == fread(compressed->buf, 1, compressed->size_buf, info->localFile));
     }
     
-    cassure(uncompressed = calloc(1,uncompressedSize));
+    cassure(uncompressed = calloc(uncompressedSize, 1));
     //file downloaded, now unpack it
     switch (lfile->compression) {
         case 0: //store
@@ -545,13 +548,13 @@ int fragmentzip_download_file(fragmentzip_t *info, const char *remotepath, const
 
     if (!(err = fragmentzip_download_to_memory(info, remotepath, &fileBuf, &fileBufSize, callback))){
         //file unpacked, now save it
-        cassure(f = fopen(savepath, "w"));
+        cassure(f = fopen(savepath, "wb"));
         cassure(fwrite(fileBuf, 1, fileBufSize, f) == fileBufSize);
     }
     
 error:
     safeFree(fileBuf);
-    if (f) fclose(f);
+    safeFreeCustom(f, fclose);
     return err;
 }
 
@@ -568,6 +571,6 @@ void fragmentzip_close(fragmentzip_t *info){
     }
 }
 
-const char* fragmentzip_version(){
+const char* fragmentzip_version(void){
     return VERSION_STRING;
 }

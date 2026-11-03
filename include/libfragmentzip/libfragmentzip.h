@@ -118,7 +118,11 @@ typedef struct{
 //    uint64_t local_header_offset;
 //    uint32_t disk_num;
 } ATTRIBUTE_PACKED fragmentzip64_extended_information_extra_field;
-    
+
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
+
 typedef struct fragmentzip_info{
     char *url;
     CURL *mcurl;
@@ -139,7 +143,7 @@ typedef struct fragmentzip_info{
 } fragmentzip_t;
 
 
-STATIC_INLINE bool isBigEndian(){
+STATIC_INLINE bool isBigEndian(void){
     static const uint32_t tst = 0x41424344;
     return (bool)__builtin_expect(((char*)&tst)[0] == 0x41,0);
 }
